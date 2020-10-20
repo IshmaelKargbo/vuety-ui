@@ -1,29 +1,27 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+  <div id="app" class="p-10 bg-gray-200">
+    <select-vue multiple v-model="select">
+      <option-vue value="c1">Sierra leone</option-vue>
+      <option-vue value="c2">Ghana</option-vue>
+      <option-vue value="c3">Togo</option-vue>
+    </select-vue>
+    {{ select }}
   </div>
 </template>
 
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import HelloWorld from './components/HelloWorld.vue';
+<script>
+import OptionVue from "./components/Option.vue";
+import SelectVue from "./components/Select.vue";
 
-@Component({
-  components: {
-    HelloWorld,
+export default {
+  data() {
+    return {
+      select: ["c1", "c2"],
+    };
   },
-})
-export default class App extends Vue {}
+  components: {
+    SelectVue,
+    OptionVue,
+  },
+};
 </script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
