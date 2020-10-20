@@ -2,7 +2,10 @@
   <div>
     <div :id="weSelect" class="relative" v-click-outside="close">
       <!-- Select -->
-      <div class="rounded-md shadow-sm bg-white border px-3 py-2">
+      <div
+        :class="{ 'border-red-500': error }"
+        class="rounded-md shadow-sm bg-white border px-3 py-2"
+      >
         <!-- selectList -->
         <div class="flex flex-wrap -mx-2">
           <div
@@ -36,6 +39,7 @@
           <span>
             <svg
               class="h-5 w-5 text-gray-500"
+              :class="{ 'text-red-500': error }"
               viewBox="0 0 20 20"
               fill="none"
               stroke="currentColor"
@@ -50,6 +54,8 @@
           </span>
         </div>
       </div>
+      <!-- Select - Error -->
+      <p v-if="eMessage" class="text-red-500 text-sm pt-1 pl-1">{{ error }}</p>
       <!-- Select - Option -->
       <div
         :id="weSelectOption"
@@ -75,11 +81,15 @@ export default {
     value: {
       default: null,
     },
+    error: {
+      default: "",
+    },
   },
   data() {
     return {
       optionsSelector: [],
       aOptions: [],
+      eMessage: false,
       weInput: null,
       active: false,
       weSelectOption: `_${Math.random().toString(36).substr(2, 9)}`,
@@ -300,11 +310,25 @@ export default {
         this.weInput.value = data.name;
       }
     },
+    errorHandler() {
+      if (this.error) {
+        this.eMessage = true;
+
+        setTimeout(() => {
+          this.eMessage = false;
+        }, 5000);
+      }
+    },
   },
   watch: {
     value(data) {
       if (data) {
         this.edit();
+      }
+    },
+    error(data) {
+      if (data) {
+        this.errorHandler();
       }
     },
   },
@@ -334,6 +358,10 @@ export default {
 
     if (this.value) {
       this.edit();
+    }
+
+    if (this.error) {
+      this.errorHandler();
     }
   },
 };

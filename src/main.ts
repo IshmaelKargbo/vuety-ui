@@ -12,8 +12,8 @@ Vue.config.productionTip = false;
 
 export default {
   install(Vue: any) {
-    Vue.component('we-select', Select)
-    Vue.component('we-option', Option)
+    Vue.component('vuety-select', Select)
+    Vue.component('vuety-option', Option)
   }
 }
 
