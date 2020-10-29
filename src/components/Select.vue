@@ -1,61 +1,65 @@
 <template>
   <div>
     <div :id="weSelect" class="relative" v-click-outside="close">
-      <!-- Select -->
-      <div
-        :class="{ 'border-red-500': error }"
-        class="rounded-md shadow-sm bg-white border px-3 py-2"
-      >
-        <!-- selectList -->
-        <div class="flex flex-wrap -mx-2">
-          <div
-            v-for="(row, index) in selectList"
-            :key="index"
-            class="flex mb-2 justify-between w-auto items-center border rounded-full pl-2 pr-1 py-1 mx-2"
-          >
-            <p class="mr-1">{{ row.name }}</p>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              width="20"
-              class="fill-current cursor-pointer text-red-500"
-              @click="remove(index)"
-              height="20"
+      <div>
+        <!-- Select -->
+        <div
+          :class="{ 'border-red-500': error }"
+          class="rounded-md shadow-sm bg-white border p-3"
+        >
+          <!-- selectList -->
+          <div class="flex flex-wrap -mx-2">
+            <div
+              v-for="(row, index) in selectList"
+              :key="index"
+              class="flex mb-2 justify-between w-auto items-center border rounded-full pl-2 pr-1 py-1 mx-2"
             >
-              <path
-                class="heroicon-ui"
-                d="M16.24 14.83a1 1 0 0 1-1.41 1.41L12 13.41l-2.83 2.83a1 1 0 0 1-1.41-1.41L10.59 12 7.76 9.17a1 1 0 0 1 1.41-1.41L12 10.59l2.83-2.83a1 1 0 0 1 1.41 1.41L13.41 12l2.83 2.83z"
-              />
-            </svg>
+              <p class="mr-1">{{ row.name }}</p>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="20"
+                class="fill-current cursor-pointer text-red-500"
+                @click="remove(index)"
+                height="20"
+              >
+                <path
+                  class="heroicon-ui"
+                  d="M16.24 14.83a1 1 0 0 1-1.41 1.41L12 13.41l-2.83 2.83a1 1 0 0 1-1.41-1.41L10.59 12 7.76 9.17a1 1 0 0 1 1.41-1.41L12 10.59l2.83-2.83a1 1 0 0 1 1.41 1.41L13.41 12l2.83 2.83z"
+                />
+              </svg>
+            </div>
+          </div>
+          <div @click="show" class="flex items-center">
+            <input
+              type="text"
+              @keyup="doFilter"
+              class="focus:outline-none bg-transparent w-full cursor-pointer"
+              :placeholder="placeholder"
+            />
+            <span>
+              <svg
+                class="h-5 w-5 text-gray-500"
+                :class="{ 'text-red-500': error }"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  d="M7 7l3-3 3 3m0 6l-3 3-3-3"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
           </div>
         </div>
-        <div @click="show" class="flex items-center">
-          <input
-            type="text"
-            @keyup="doFilter"
-            class="focus:outline-none bg-transparent w-full cursor-pointer"
-            placeholder="Select option"
-          />
-          <span>
-            <svg
-              class="h-5 w-5 text-gray-500"
-              :class="{ 'text-red-500': error }"
-              viewBox="0 0 20 20"
-              fill="none"
-              stroke="currentColor"
-            >
-              <path
-                d="M7 7l3-3 3 3m0 6l-3 3-3-3"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </span>
-        </div>
+        <!-- Select - Error -->
+        <p v-if="eMessage" class="text-red-500 text-sm pt-1 pl-1">
+          {{ error }}
+        </p>
       </div>
-      <!-- Select - Error -->
-      <p v-if="eMessage" class="text-red-500 text-sm pt-1 pl-1">{{ error }}</p>
       <!-- Select - Option -->
       <div
         :id="weSelectOption"
@@ -84,6 +88,9 @@ export default {
     error: {
       default: "",
     },
+    placeholder: {
+      default: "",
+    },
   },
   data() {
     return {
@@ -104,6 +111,21 @@ export default {
       this.$emit("input", out);
     },
     show() {
+      const weSelector = document.querySelector(`#${this.weSelect}`);
+      const listSelector = weSelector.querySelector("ul");
+      this.weInput = weSelector.querySelector("input");
+
+      this.optionsSelector = listSelector.querySelectorAll("li");
+
+      this.aOptions = Array.from(this.optionsSelector);
+
+      weSelector.setAttribute("role", "combobox");
+      listSelector.setAttribute("role", "listbox");
+
+      weSelector.addEventListener("keyup", (e) => {
+        this.doKeyAction(e.key);
+      });
+
       if (!this.active) {
         this.optionsSelector.forEach((option) => (option.style.display = ""));
       } else {
@@ -116,16 +138,22 @@ export default {
       this.active = !this.active;
     },
     close() {
+      const weSelector = document.querySelector(`#${this.weSelect}`);
+
       this.active = false;
 
       if (this.multiple) {
-        this.weInput.value = "";
-        this.optionsSelector.forEach(
-          (option) => (option.style.display = "none")
-        );
+        if (weSelector) {
+          this.weInput = weSelector.querySelector("input");
+
+          this.weInput.value = "";
+          this.optionsSelector.forEach(
+            (option) => (option.style.display = "none")
+          );
+        }
       }
 
-      this.weInput.blur();
+      if (weSelector) this.weInput.blur();
     },
     select() {
       const option = this.findFocus();
@@ -265,6 +293,14 @@ export default {
       }
     },
     edit() {
+      const weSelector = document.querySelector(`#${this.weSelect}`);
+      const listSelector = weSelector.querySelector("ul");
+      this.weInput = weSelector.querySelector("input");
+
+      this.optionsSelector = listSelector.querySelectorAll("li");
+
+      this.aOptions = Array.from(this.optionsSelector);
+
       if (
         typeof this.value !== "string" &&
         this.value !== "string" &&
@@ -331,31 +367,17 @@ export default {
         this.errorHandler();
       }
     },
+    optionsSelector(f) {
+      this.optionsSelector.forEach((option) => {
+        option.setAttribute("tabindex", "0");
+
+        option.addEventListener("click", (e) => {
+          this.select(e);
+        });
+      });
+    },
   },
   mounted() {
-    const weSelector = document.querySelector(`#${this.weSelect}`);
-    const listSelector = weSelector.querySelector("ul");
-    this.weInput = weSelector.querySelector("input");
-    this.optionsSelector = listSelector.querySelectorAll("li");
-
-    this.aOptions = Array.from(this.optionsSelector);
-
-    weSelector.setAttribute("role", "combobox");
-    listSelector.setAttribute("role", "listbox");
-
-    this.optionsSelector.forEach((option) => {
-      option.setAttribute("role", "option");
-      option.setAttribute("tabindex", "-1");
-
-      option.addEventListener("click", (e) => {
-        this.select(e);
-      });
-    });
-
-    weSelector.addEventListener("keyup", (e) => {
-      this.doKeyAction(e.key);
-    });
-
     if (this.value) {
       this.edit();
     }
