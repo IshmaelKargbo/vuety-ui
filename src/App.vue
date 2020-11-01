@@ -1,6 +1,6 @@
 <template>
   <div id="app" class="p-10 bg-gray-200">
-    <select-vue placeholder="Testing" error="Yaa" v-model="country" multiple>
+    <select-vue placeholder="Testing" error="Yaa" v-model="country">
       <option-vue value="Sierra Leone">Sierra Leone</option-vue>
       <option-vue value="Ghana">Ghana</option-vue>
       <option-vue value="Togo">Togo</option-vue>
@@ -28,7 +28,7 @@ import SwitchVue from "./components/Switch.vue";
 export default {
   data() {
     return {
-      country: [],
+      country: "",
     };
   },
   components: {

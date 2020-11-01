@@ -129,8 +129,8 @@ export default {
           const label = row.querySelector("p");
 
           const data = {
-            name: label.innerText,
-            value: input.value,
+            name: label ? label.innerText : "",
+            value: input ? input.value : "",
           };
 
           if (this.multiple) {
@@ -210,8 +210,8 @@ export default {
       const label = option.querySelector("p");
 
       const data = {
-        name: label.innerText,
-        value: input.value,
+        name: label ? label.innerText : "",
+        value: input ? input.value : "",
       };
 
       if (this.multiple) {
@@ -251,7 +251,7 @@ export default {
       weSelector.addEventListener("keyup", (e) => {
         this.doKeyAction(e.key);
       });
-      
+
       if (
         key.code !== "ArrowUp" &&
         key.code !== "ArrowDown" &&
