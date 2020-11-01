@@ -1,44 +1,40 @@
 <template>
   <div v-click-outside="closeOption" class="w-full">
     <div class="w-full relative">
-      <div>
-        <div
-          class="flex cursor-pointer rounded-md shadow-sm bg-white border p-3 items-center"
-          @click="toggleDate"
-          :class="{ 'border-red-500': error }"
-        >
-          <div class="w-full flex">
-            <p
-              class="text-gray-500 w-full overflow-hidden"
-              :class="[{ 'text-gray-700': selected }]"
-            >
-              <v-clamp autoresize :max-lines="1">{{ selectedDate }}</v-clamp>
-            </p>
-          </div>
-          <span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              class="fill-current text-gray-500"
-              :class="{ 'text-red-500': error }"
-              width="16"
-              height="16"
-            >
-              <path
-                class="heroicon-ui"
-                d="M17 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6c0-1.1.9-2 2-2h2V3a1 1 0 1 1 2 0v1h6V3a1 1 0 0 1 2 0v1zm-2 2H9v1a1 1 0 1 1-2 0V6H5v4h14V6h-2v1a1 1 0 0 1-2 0V6zm4 6H5v8h14v-8z"
-              />
-            </svg>
-          </span>
+      <div
+        class="flex cursor-pointer border bg-white rounded-md items-center p-2"
+        @click="toggleDate"
+        :class="{ 'border-red-500': error }"
+      >
+        <div class="w-full flex">
+          <p
+            class="text-gray-500 w-full overflow-hidden"
+            :class="[{ 'text-gray-700': selected }]"
+          >
+            <v-clamp autoresize :max-lines="1">{{ selectedDate }}</v-clamp>
+          </p>
         </div>
-        <p v-if="eMessage" class="text-red-500 text-sm pt-1 pl-1">
-          {{ error }}
-        </p>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          class="fill-current text-gray-500"
+          :class="{ 'text-red-500': error }"
+          width="19"
+          height="19"
+        >
+          <path
+            class="heroicon-ui"
+            d="M17 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6c0-1.1.9-2 2-2h2V3a1 1 0 1 1 2 0v1h6V3a1 1 0 0 1 2 0v1zm-2 2H9v1a1 1 0 1 1-2 0V6H5v4h14V6h-2v1a1 1 0 0 1-2 0V6zm4 6H5v8h14v-8z"
+          />
+        </svg>
       </div>
+      <p v-if="eMessage" class="text-red-500 text-sm pt-1 pl-1">
+        {{ error }}
+      </p>
       <div
         v-show="visible"
         :id="datepickerId"
-        class="absolute z-50 flex overflow-hidden shadow-xl flex-col rounded-md iu-datepicker py-2 bg-white border"
+        class="absolute z-50 flex overflow-hidden shadow-xl flex-col mt-1 rounded-md iu-datepicker py-2 bg-white border"
       >
         <div v-if="view === 'Days'">
           <div class="flex items-center justify-between text-gray-600 p-3">
@@ -312,13 +308,13 @@ export default {
   },
   data() {
     return {
+      eMessage: false,
       selectedDate: this.placeholder,
       datepickerId: "_" + Math.random().toString(36).substr(2, 9),
       visible: false,
       view: this.dob ? "Year" : "Days",
       selected: false,
       date: new Date(),
-      eMessage: false,
       day: null,
       month: null,
       year: null,
@@ -365,27 +361,6 @@ export default {
       this.year = this.selectedYear;
 
       const datepicker = document.querySelector(`#${this.datepickerId}`);
-
-      const screenY = window.innerHeight;
-      const clientY = e.clientY;
-
-      const screenX = window.innerWidth;
-      const clientX = e.clientX;
-
-      const space = screenY - clientY;
-      const spaceX = screenX - clientX;
-
-      const top = space - 347;
-
-      const left = spaceX - 270;
-
-      if (top < 0 && left < 0)
-        datepicker.setAttribute("style", `top: ${top}px; right: 0;`);
-      else if (top < 0 && left > 0)
-        datepicker.setAttribute("style", `top: ${top}px; left: 0;`);
-      else if (top > 0 && left < 0)
-        datepicker.setAttribute("style", "margin-top: 5px; right: 0;");
-      else datepicker.setAttribute("style", "margin-top: 5px; left: 0;");
 
       this.visible = !this.visible;
       this.view = this.dob ? "Year" : "Days";
@@ -477,6 +452,15 @@ export default {
     },
     limitMonth(month) {
       return month.substring(0, 3).toUpperCase();
+    },
+    errorHandler() {
+      if (this.error) {
+        this.eMessage = true;
+
+        setTimeout(() => {
+          this.eMessage = false;
+        }, 5000);
+      }
     },
     goToNextMonth() {
       this.month++;
@@ -599,21 +583,12 @@ export default {
         this.selectedYear = this.year;
 
         this.selectedDate = `${this.selectedYear}-${
-          this.selectedMonth + 1 > 10
+          this.selectedMonth + 1 < 10
             ? "0" + (this.selectedMonth + 1)
             : this.selectedMonth + 1
         }-${this.selectedDay < 10 ? "0" + this.selectedDay : this.selectedDay}`;
 
         this.$emit("input", this.selectedDate);
-      }
-    },
-    errorHandler() {
-      if (this.error) {
-        this.eMessage = true;
-
-        setTimeout(() => {
-          this.eMessage = false;
-        }, 5000);
       }
     },
   },
@@ -646,7 +621,7 @@ export default {
       this.currentYear = this.year;
       this.mthElement = this.months[this.month] + " " + this.year;
     }
-    
+
     if (this.error) {
       this.errorHandler();
     }

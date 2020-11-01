@@ -1,21 +1,26 @@
 <template>
   <div>
     <div
-      class="p-2 flex rounded-md border bg-white items-center"
       :class="{ 'border-red-500': error }"
+      class="border rounded-md flex focus:outline-none p-2 bg-white"
     >
+      <p
+        v-if="tag"
+        class="border-r pr-2 mr-2"
+        :class="{ 'border-red-600': error }"
+      >
+        {{ tag }}
+      </p>
       <input
-        :type="type"
-        class="bg-transparent focus:outline-none w-full"
-        :placeholder="placeholder"
+        type="text"
+        :id="inputId"
+        class="w-full focus:outline-none bg-transparent placeholder-gray-500"
+        :value="value"
         autocomplete="off"
         @input="input"
-        @keyup="keyup"
-        :min="min"
-        :value="value"
+        :placeholder="placeholder"
       />
     </div>
-    <!-- Select - Error -->
     <p v-if="eMessage" class="text-red-500 text-sm pt-1 pl-1">
       {{ error }}
     </p>
@@ -24,34 +29,17 @@
 
 <script>
 export default {
-  data() {
-    return {
-      eMessage: false,
-    };
-  },
   props: {
+    placeholder: String,
     error: {
       default: "",
     },
-    type: {
-      default: "text",
-    },
-    value: {
-      default: "",
-    },
-    placeholder: {
-      default: "",
-    },
-    min: {
-      default: 0,
-    },
+    value: String,
+    tag: String,
   },
   methods: {
     input({ target }) {
       this.$emit("input", target.value);
-    },
-    keyup({ target }) {
-      this.$emit("keyup", target.value);
     },
     errorHandler() {
       if (this.error) {
@@ -63,12 +51,23 @@ export default {
       }
     },
   },
+  data() {
+    return {
+      inputId: `_${Math.random().toString(36).substr(2, 9)}`,
+      eMessage: false,
+    };
+  },
   mounted() {
     if (this.error) {
       this.errorHandler();
     }
   },
   watch: {
+    tag(f) {
+      if (f) {
+        document.querySelector(`#${this.inputId}`).focus();
+      }
+    },
     error(data) {
       if (data) {
         this.errorHandler();

@@ -5,7 +5,7 @@
         <!-- Select -->
         <div
           :class="{ 'border-red-500': error }"
-          class="rounded-md shadow-sm bg-white border p-3"
+          class="rounded-md shadow-sm bg-white border p-2"
         >
           <!-- selectList -->
           <div class="flex flex-wrap -mx-2">
@@ -35,6 +35,7 @@
               type="text"
               @keyup="doFilter"
               class="focus:outline-none bg-transparent w-full cursor-pointer"
+              autocomplete="off"
               :placeholder="placeholder"
             />
             <span>
@@ -65,7 +66,7 @@
         :id="weSelectOption"
         v-show="active"
         :class="{ active: active }"
-        class="absolute border mt-1 z-40 w-full rounded-md bg-white shadow-lg we-select-options"
+        class="absolute border mt-1 z-40 overflow-y-auto w-full rounded-md bg-white shadow-lg we-select-options"
       >
         <ul>
           <slot></slot>
@@ -109,11 +110,57 @@ export default {
       this.selectList.splice(index, 1);
       const out = this.selectList.map((e) => e.value);
       this.$emit("input", out);
+      this.$emit("change", out);
+    },
+    blur() {
+      if (this.weInput) {
+        const value = this.weInput.value;
+        const row = this.aOptions.find((option) => {
+          const input = option.querySelector("input");
+          const label = option.querySelector("p");
+
+          if (label.innerText.toLowerCase() === value.toLowerCase()) {
+            return option;
+          }
+        });
+
+        if (row) {
+          const input = row.querySelector("input");
+          const label = row.querySelector("p");
+
+          const data = {
+            name: label.innerText,
+            value: input.value,
+          };
+
+          if (this.multiple) {
+            const check = this.selectList.findIndex(
+              (e) => e.value === data.value
+            );
+
+            if (check === -1) {
+              this.selectList.push(data);
+            }
+
+            const out = this.selectList.map((e) => e.value);
+            this.weInput.value = "";
+            this.$emit("input", out);
+            this.$emit("change", out);
+          } else {
+            this.weInput.value = data.name;
+            this.$emit("input", data.value);
+            this.$emit("change", data.value);
+          }
+        } else {
+          this.weInput.value = "";
+        }
+      }
     },
     show() {
       const weSelector = document.querySelector(`#${this.weSelect}`);
       const listSelector = weSelector.querySelector("ul");
       this.weInput = weSelector.querySelector("input");
+      this.eMessage = false;
 
       this.optionsSelector = listSelector.querySelectorAll("li");
 
@@ -138,6 +185,8 @@ export default {
       this.active = !this.active;
     },
     close() {
+      this.blur();
+
       const weSelector = document.querySelector(`#${this.weSelect}`);
 
       this.active = false;
@@ -153,7 +202,7 @@ export default {
         }
       }
 
-      if (weSelector) this.weInput.blur();
+      if (weSelector && this.weInput) this.weInput.blur();
     },
     select() {
       const option = this.findFocus();
@@ -174,9 +223,11 @@ export default {
 
         const out = this.selectList.map((e) => e.value);
         this.$emit("input", out);
+        this.$emit("change", out);
       } else {
         this.weInput.value = data.name;
         this.$emit("input", data.value);
+        this.$emit("change", data.value);
       }
 
       this.close();
@@ -186,6 +237,21 @@ export default {
       return focusPoint;
     },
     doFilter(key) {
+      const weSelector = document.querySelector(`#${this.weSelect}`);
+      const listSelector = weSelector.querySelector("ul");
+      this.weInput = weSelector.querySelector("input");
+
+      this.optionsSelector = listSelector.querySelectorAll("li");
+
+      this.aOptions = Array.from(this.optionsSelector);
+
+      weSelector.setAttribute("role", "combobox");
+      listSelector.setAttribute("role", "listbox");
+
+      weSelector.addEventListener("keyup", (e) => {
+        this.doKeyAction(e.key);
+      });
+      
       if (
         key.code !== "ArrowUp" &&
         key.code !== "ArrowDown" &&
@@ -397,7 +463,28 @@ export default {
 }
 
 .we-select-options.active {
-  max-height: 300px;
+  max-height: 288px;
   opacity: 1;
+}
+
+.we-select-options::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+.we-select-options::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+/* Handle */
+.we-select-options::-webkit-scrollbar-thumb {
+  background: #0099e8;
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+.we-select-options::-webkit-scrollbar-thumb:hover {
+  background: #018cd1;
 }
 </style>
